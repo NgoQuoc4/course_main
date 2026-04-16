@@ -60,6 +60,7 @@ const CourseDetailPage = () => {
         teacherInfo: courseDetailData?.instructor || teams?.find((item) => item.tags.includes(ROLES.teacher)) || {},
         startDate: formatDate(startDate || ""),
         price: formatCurrency(price || ""),
+        status: courseDetailData?.status,
         orderLink,
         isRegistered,
     }

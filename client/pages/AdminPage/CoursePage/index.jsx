@@ -27,7 +27,7 @@ const CoursePageAdmin = () => {
     const [form] = Form.useForm();
 
     // Lấy danh sách khóa học
-    const { data: coursesData, loading, refetch } = useQuery(courseServices.getCourses);
+    const { data: coursesData, loading, refetch } = useQuery(() => courseServices.getCourses("?status=all"));
     const courses = coursesData?.courses || [];
 
     const showModal = (course = null) => {

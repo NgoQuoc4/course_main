@@ -18,7 +18,9 @@ const CourseItem = ({
     thumbnail,
     startDate,
     price,
+    status,
 }) => {
+    const isInactive = status === "inactive";
     const displayImage = image || thumbnail || "";
     const orderLink = `/course-order/` + slug;
 
@@ -67,8 +69,11 @@ const CourseItem = ({
                         )}
                     </div>
                     <div className="btnwrap">
-                        {/* <Button link={PATHS.COURSE.ORDER} className="btn btn--primary">Đăng Ký Học</Button> */}
-                        <Button link={orderLink} className="btn btn--primary">Đăng Ký Học</Button>
+                        {isInactive ? (
+                            <Button className="btn btn--primary --disable">Coming Soon</Button>
+                        ) : (
+                            <Button link={orderLink} className="btn btn--primary">Đăng Ký Học</Button>
+                        )}
                         <Button link={detailPath} className="btn btn--border --black">Xem chi tiết</Button>
                     </div>
                 </div>
@@ -98,7 +103,11 @@ const CourseItem = ({
                     <div className="price"><strong>{formatCurrency(price || "") + "VND"}</strong></div>
                 </div>
                 <div className="content__action">
-                    <Button link={PATHS.COURSE.ORDER} className="btn btn--primary">Đăng ký ngay</Button>
+                    {isInactive ? (
+                        <Button className="btn btn--primary --disable">Coming Soon</Button>
+                    ) : (
+                        <Button link={PATHS.COURSE.ORDER} className="btn btn--primary">Đăng ký ngay</Button>
+                    )}
                     <Button link={detailPath} className="btn btn--default"><img src="/img/icon-paper.svg" alt="icon paper" /></Button>
                 </div>
             </div>

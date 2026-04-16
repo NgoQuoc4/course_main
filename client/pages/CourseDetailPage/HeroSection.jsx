@@ -34,6 +34,8 @@ const HeroSection = ({ title, name, startDate, duration, tags, orderLink, image,
                     {/* Đăng ký */}
                     {isRegistered ? (
                         <div className="btn btn--primary btn-regcourse --disable">Đã đăng ký</div>
+                    ) : isInactive ? (
+                        <div className="btn btn--primary btn-regcourse --disable">Coming Soon</div>
                     ) : (
                         <Button link={orderLink} className="btn btn--primary btn-regcourse">Đăng ký</Button>
                     )}

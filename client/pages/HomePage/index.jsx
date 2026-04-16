@@ -16,19 +16,19 @@ import { teamServices } from "@/features/general/services/teamServices";
 import { questionService } from "@/features/general/services/questionService";
 
 export const HomePage = () => {
-    // get courses section
     const {
         data: dataCourses,
         error: errorCourses,
         loading: loadingCourses,
-    } = useQuery(courseServices.getCourses);
-    //modifi data courses      
-    const courses = dataCourses?.courses || [];
-    // coming course data
-    const comingCourses =
-        courses.filter(
-            (course) => course.startDate && new Date(course.startDate) > new Date()
-        ) || [];
+    } = useQuery(() => courseServices.getCourses("?status=active,inactive"));
+    
+    const allCourses = dataCourses?.courses || [];
+    
+    // Active courses go to the main list
+    const courses = allCourses.filter(course => course.status === "active");
+    
+    // Inactive courses go to the coming soon section
+    const comingCourses = allCourses.filter(course => course.status === "inactive");
     //////////////////////////////////////////////////////////////////////////////////////
     // get gallery section  
     const {

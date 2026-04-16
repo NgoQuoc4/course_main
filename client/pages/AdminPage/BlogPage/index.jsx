@@ -26,7 +26,7 @@ const BlogPageAdmin = () => {
     const [form] = Form.useForm();
 
     // Lấy danh sách bài viết
-    const { data: blogsData, loading, refetch } = useQuery(adminBlogServices.getBlogs);
+    const { data: blogsData, loading, refetch } = useQuery(() => adminBlogServices.getBlogs("?status=all"));
     const blogs = blogsData?.blogs || [];
 
     // Lấy danh mục
