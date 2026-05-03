@@ -28,8 +28,14 @@ const app = express();
 app.use(
     cors({
         origin: (origin, callback) => {
-            const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:5173").split(",");
-            if (!origin || allowedOrigins.includes(origin)) {
+            const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+            const allowedOrigins = clientUrl.split(",").map(url => url.trim().replace(/\/$/, "")); // Loại bỏ dấu '/' ở cuối nếu có
+
+            if (
+                !origin || 
+                allowedOrigins.includes(origin) || 
+                origin.includes("vercel.app") // Cho phép các domain preview/production của Vercel
+            ) {
                 callback(null, true);
             } else {
                 callback(new Error("Not allowed by CORS"));
