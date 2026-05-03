@@ -28,7 +28,7 @@ const items = [
     getItem(<Link to="/admin/course">COURSE</Link>, '2', <DesktopOutlined />),
     getItem(<Link to="/admin/blog">BLOG</Link>, 'sub1', <UserOutlined />,),
     getItem(<Link to="/admin/users">USERS</Link>, '10', <TeamOutlined />),
-    getItem('Files', '9', <FileOutlined />),
+    getItem('Roles', '9', <FileOutlined />),
 ];
 
 

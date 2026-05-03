@@ -6,7 +6,7 @@ dotenv.config();
 
 const checkCourses = async () => {
     try {
-        await mongoose.connect(process.env.MONGODB_URI);
+        await mongoose.connect(process.env.MONGODB_URI!);
         const courses = await Course.find({}, "title slug");
         console.log("Current Courses:", JSON.stringify(courses, null, 2));
         process.exit(0);

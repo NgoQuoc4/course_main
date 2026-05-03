@@ -24,6 +24,17 @@ const server = app.listen(PORT, () => {
     console.log(`🚀 Server đang chạy trên cổng ${PORT} - môi trường: ${process.env.NODE_ENV || "development"}`);
 });
 
+// Bắt lỗi cụ thể của server (ví dụ: EADDRINUSE)
+server.on("error", (err: any) => {
+    if (err.code === "EADDRINUSE") {
+        console.error(`💥 Lỗi: Cổng ${PORT} đã được sử dụng. Hãy giải phóng cổng này hoặc sử dụng cổng khác!`);
+        process.exit(1);
+    } else {
+        console.error("💥 Lỗi server:", err.message);
+        process.exit(1);
+    }
+});
+
 // 5. Xử lý Unhandled Rejection
 process.on("unhandledRejection", (err: any) => {
     console.log("UNHANDLED REJECTION! 💥 Shutting down...");

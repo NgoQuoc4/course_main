@@ -120,18 +120,21 @@ const RegisterForm = () => {
                     label="Email"
                     placeholder="Email"
                     required
+                    type="email"
                     {...register("email")}
                 />
                 <Input
                     label="Mật khẩu"
                     placeholder="Mật khẩu"
                     required
+                    type="password"
                     {...register("password")}
                 />
                 <Input
                     label="Xác nhận mật khẩu"
                     placeholder="Xác nhận mật khẩu"
                     required
+                    type="password"
                     {...register("confirmPassword")}
                 />
                 <p className="form__argee">

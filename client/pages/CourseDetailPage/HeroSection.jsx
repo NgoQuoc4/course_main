@@ -3,7 +3,8 @@ import { formatCurrency, formatDate } from '@/utils/format'
 import { message } from 'antd';
 import React from 'react'
 
-const HeroSection = ({ title, name, startDate, duration, tags, orderLink, image, teacherInfo = {}, price, isRegistered }) => {
+const HeroSection = ({ title, name, startDate, duration, tags, orderLink, image, teacherInfo = {}, price, isRegistered, status }) => {
+    const isInactive = status === "inactive";
 
     const _onCopyLink = (e) => {
         e.preventDefault();

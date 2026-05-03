@@ -20,6 +20,7 @@ import Team from "../models/Team.js";
 import Question from "../models/Question.js";
 import Subscribe from "../models/Subscribe.js";
 import Role from "../models/Role.js";
+import Order from "../models/Order.js";
 
 const connectDB = async () => {
   try {
@@ -40,6 +41,7 @@ const seedData = async () => {
     await Promise.all([
       Customer.deleteMany({}),
       Course.deleteMany({}),
+      Order.deleteMany({}),
       BlogCategory.deleteMany({}),
       Blog.deleteMany({}),
       Gallery.deleteMany({}),

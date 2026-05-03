@@ -1,11 +1,11 @@
 import React from 'react';
 import { Card, Row, Col, Statistic, Table, Tag, Typography } from 'antd';
-import { 
-    BookOutlined, 
-    FileTextOutlined, 
-    UserOutlined, 
+import {
+    BookOutlined,
+    FileTextOutlined,
+    UserOutlined,
     ShoppingCartOutlined,
-    DollarCircleOutlined 
+    DollarCircleOutlined
 } from '@ant-design/icons';
 import useQuery from '@/hooks/useQuery';
 import { adminStatsService } from '@/services/adminServices/adminStatsService';
@@ -22,7 +22,10 @@ const HomePageAdmin = () => {
             title: 'Khách hàng',
             dataIndex: 'customer',
             key: 'customer',
-            render: (customer) => `${customer?.firstName} ${customer?.lastName}`,
+            render: (customer, record) => {
+                if (customer) return `${customer.firstName} ${customer.lastName}`;
+                return record.name || 'Khách vãng lai';
+            },
         },
         {
             title: 'Tổng tiền',
@@ -52,7 +55,7 @@ const HomePageAdmin = () => {
     return (
         <div style={{ padding: '24px' }}>
             <Title level={2}>Tổng quan hệ thống</Title>
-            
+
             <Row gutter={[16, 16]}>
                 <Col xs={24} sm={12} md={8} lg={4}>
                     <Card loading={loading}>
