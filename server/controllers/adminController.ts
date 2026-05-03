@@ -86,7 +86,7 @@ export const getUsers = catchAsync(async (req: Request, res: Response) => {
  */
 export const updateUserRole = catchAsync(async (req: Request, res: Response) => {
     const { role } = req.body;
-    const user = await customerService.updateUserRole(req.params.id, role);
+    const user = await customerService.updateUserRole(req.params.id as string, role);
     res.status(200).json({
         success: true,
         message: "Cập nhật vai trò thành công.",
@@ -99,7 +99,7 @@ export const updateUserRole = catchAsync(async (req: Request, res: Response) => 
  * @route   DELETE /api/admin/users/:id
  */
 export const deleteUser = catchAsync(async (req: Request, res: Response) => {
-    await customerService.deleteUser(req.params.id);
+    await customerService.deleteUser(req.params.id as string);
     res.status(200).json({
         success: true,
         message: "Xóa người dùng thành công.",

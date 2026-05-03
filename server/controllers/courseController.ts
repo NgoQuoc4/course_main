@@ -23,7 +23,7 @@ export const getCourses = catchAsync(async (req: Request, res: Response) => {
  */
 export const getCourseBySlug = catchAsync(async (req: Request, res: Response) => {
     const { slug } = req.params;
-    const course = await courseService.getCourseBySlug(slug);
+    const course = await courseService.getCourseBySlug(slug as string);
 
     res.status(200).json({
         success: true,
@@ -54,7 +54,7 @@ export const createCourse = catchAsync(async (req: any, res: Response) => {
  * @route   PATCH /courses/:id
  */
 export const updateCourse = catchAsync(async (req: Request, res: Response) => {
-    const course = await courseService.updateCourse(req.params.id, req.body);
+    const course = await courseService.updateCourse(req.params.id as string, req.body);
 
     res.status(200).json({
         success: true,
@@ -68,7 +68,7 @@ export const updateCourse = catchAsync(async (req: Request, res: Response) => {
  * @route   DELETE /courses/:id
  */
 export const deleteCourse = catchAsync(async (req: Request, res: Response) => {
-    await courseService.deleteCourse(req.params.id);
+    await courseService.deleteCourse(req.params.id as string);
 
     res.status(200).json({
         success: true,

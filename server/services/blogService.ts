@@ -7,6 +7,7 @@ interface GetBlogsQuery {
     page?: number | string;
     limit?: number | string;
     sort?: string;
+    status?: string;
 }
 
 /**

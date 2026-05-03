@@ -8,10 +8,10 @@ import Role from "../models/Role.js";
  */
 export const generateTokens = (id: string | any) => {
     const accessToken = jwt.sign({ id }, process.env.JWT_SECRET as string, {
-        expiresIn: (process.env.JWT_EXPIRES_IN as string) || "1h",
+        expiresIn: (process.env.JWT_EXPIRES_IN || "1h") as any,
     });
     const refreshToken = jwt.sign({ id }, process.env.JWT_REFRESH_SECRET as string, {
-        expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN as string) || "7d",
+        expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN || "7d") as any,
     });
     return { accessToken, refreshToken };
 };

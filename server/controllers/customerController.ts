@@ -97,6 +97,10 @@ export const updateProfile = catchAsync(async (req: Request, res: Response) => {
         avatarUrl
     );
 
+    if (!updatedCustomer) {
+        throw { message: "Không tìm thấy khách hàng để cập nhật.", statusCode: 404 };
+    }
+
     res.status(200).json({
         success: true,
         message: "Cập nhật hồ sơ thành công.",

@@ -1,4 +1,4 @@
-import { ICourse } from "./course";
+import { ICourse } from "./course.js";
 
 export type PaymentMethod = 'cash' | 'atm' | 'transfer';
 export type OrderStatus = 'pending' | 'completed' | 'cancelled';

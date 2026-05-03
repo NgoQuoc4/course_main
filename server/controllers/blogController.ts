@@ -22,7 +22,7 @@ export const getBlogs = catchAsync(async (req: Request, res: Response) => {
  * @access  Public
  */
 export const getBlogBySlug = catchAsync(async (req: Request, res: Response) => {
-    const blog = await blogService.getBlogBySlug(req.params.slug);
+    const blog = await blogService.getBlogBySlug(req.params.slug as string);
 
     res.status(200).json({
         success: true,
@@ -50,7 +50,7 @@ export const getBlogCategories = catchAsync(async (req: Request, res: Response) 
  * @access  Public
  */
 export const getBlogCategoryBySlug = catchAsync(async (req: Request, res: Response) => {
-    const category = await blogService.getBlogCategoryBySlug(req.params.slug);
+    const category = await blogService.getBlogCategoryBySlug(req.params.slug as string);
 
     res.status(200).json({
         success: true,
@@ -75,7 +75,7 @@ export const createBlog = catchAsync(async (req: Request, res: Response) => {
  * @desc    Cập nhật bài viết (Admin)
  */
 export const updateBlog = catchAsync(async (req: Request, res: Response) => {
-    const blog = await blogService.updateBlog(req.params.id, req.body);
+    const blog = await blogService.updateBlog(req.params.id as string, req.body);
 
     res.status(200).json({
         success: true,
@@ -88,7 +88,7 @@ export const updateBlog = catchAsync(async (req: Request, res: Response) => {
  * @desc    Xóa bài viết (Admin)
  */
 export const deleteBlog = catchAsync(async (req: Request, res: Response) => {
-    await blogService.deleteBlog(req.params.id);
+    await blogService.deleteBlog(req.params.id as string);
 
     res.status(200).json({
         success: true,
