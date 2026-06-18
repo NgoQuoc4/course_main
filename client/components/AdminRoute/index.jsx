@@ -37,10 +37,6 @@ const AdminRoute = ({ allowedRoles = ["admin", "teacher"] }) => {
     return <NoPermissionPage />;
   }
 
-  if (userRole === "customer" || userRole === "user") {
-    return <Navigate to={PATHS.HOME} />;
-  }
-
   // 5. Nếu hợp lệ -> Cho qua
   return <Outlet />;
 };
