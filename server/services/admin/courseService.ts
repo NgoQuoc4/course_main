@@ -4,10 +4,11 @@ import prisma from "../../config/prisma.js";
  * Tạo khóa học mới (Admin Only)
  */
 export const createCourse = async (courseData: any) => {
-    const { instructor, ...rest } = courseData;
+    const { instructor, startDate, ...rest } = courseData;
     return await prisma.course.create({
         data: {
             ...rest,
+            startDate: startDate ? new Date(startDate) : null,
             instructorId: instructor,
         }
     });
@@ -17,10 +18,13 @@ export const createCourse = async (courseData: any) => {
  * Cập nhật thông tin khóa học (Admin Only)
  */
 export const updateCourse = async (id: string, updateData: any) => {
-    const { instructor, ...rest } = updateData;
+    const { instructor, startDate, ...rest } = updateData;
     const data: any = { ...rest };
     if (instructor) {
         data.instructorId = instructor;
+    }
+    if (startDate !== undefined) {
+        data.startDate = startDate ? new Date(startDate) : null;
     }
     return await prisma.course.update({
         where: { id },

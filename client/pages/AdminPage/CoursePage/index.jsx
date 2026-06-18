@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     Table, 
     Button, 
@@ -16,6 +16,7 @@ import {
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import useQuery from '@/hooks/useQuery';
 import { courseServices } from '@/services/adminServices/courseServices';
+import { userAdminService } from '@/services/adminServices/userAdminService';
 import { formatCurrency } from '@/utils/format';
 
 const { Title } = Typography;
@@ -24,7 +25,28 @@ const { Option } = Select;
 const CoursePageAdmin = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingCourse, setEditingCourse] = useState(null);
+    const [instructors, setInstructors] = useState([]);
     const [form] = Form.useForm();
+
+    // Load danh sách giảng viên
+    useEffect(() => {
+        const fetchInstructors = async () => {
+            try {
+                // Lấy danh sách giảng viên (teacher)
+                const resTeachers = await userAdminService.getUsers("?limit=100&role=teacher");
+                const teachers = resTeachers?.data?.data?.users || [];
+                
+                // Lấy danh sách quản trị viên (admin)
+                const resAdmins = await userAdminService.getUsers("?limit=100&role=admin");
+                const admins = resAdmins?.data?.data?.users || [];
+                
+                setInstructors([...teachers, ...admins]);
+            } catch (error) {
+                console.error("Lỗi khi tải danh sách giảng viên", error);
+            }
+        };
+        fetchInstructors();
+    }, []);
 
     // Lấy danh sách khóa học
     const { data: coursesData, loading, refetch } = useQuery(() => courseServices.getCourses("?status=all"));
@@ -33,7 +55,12 @@ const CoursePageAdmin = () => {
     const showModal = (course = null) => {
         setEditingCourse(course);
         if (course) {
-            form.setFieldsValue(course);
+            const formattedCourse = {
+                ...course,
+                startDate: course.startDate ? course.startDate.substring(0, 10) : undefined,
+                instructor: course.instructorId || course.instructor?._id || course.instructor?.id
+            };
+            form.setFieldsValue(formattedCourse);
         } else {
             form.resetFields();
         }
@@ -206,6 +233,18 @@ const CoursePageAdmin = () => {
 
                     <div style={{ display: 'flex', gap: '16px' }}>
                         <Form.Item
+                            name="startDate"
+                            label="Ngày khai giảng"
+                            style={{ flex: 1 }}
+                        >
+                            <Input type="date" style={{ width: '100%' }} />
+                        </Form.Item>
+
+                        <div style={{ flex: 1 }} />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                        <Form.Item
                             name="status"
                             label="Trạng thái"
                             style={{ flex: 1 }}
@@ -229,6 +268,91 @@ const CoursePageAdmin = () => {
                             </Select>
                         </Form.Item>
                     </div>
+
+                    <Form.Item
+                        name="instructor"
+                        label="Giảng viên"
+                        rules={[{ required: true, message: 'Vui lòng chọn giảng viên!' }]}
+                    >
+                        <Select placeholder="Chọn giảng viên">
+                            {instructors.map((ins) => (
+                                <Option key={ins._id} value={ins._id}>
+                                    {ins.firstName} {ins.lastName || ''} ({ins.email})
+                                </Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                        name="description"
+                        label="Mô tả chi tiết (Giới thiệu)"
+                    >
+                        <Input.TextArea rows={4} placeholder="Nhập mô tả chi tiết giới thiệu về khóa học (chấp nhận thẻ HTML)..." />
+                    </Form.Item>
+
+                    <Form.Item label="Yêu cầu cần có">
+                        <Form.List name="requirements">
+                            {(fields, { add, remove }) => (
+                                <>
+                                    {fields.map((field) => (
+                                        <div key={field.key} style={{ display: 'flex', marginBottom: 8, alignItems: 'center' }}>
+                                            <Form.Item
+                                                {...field}
+                                                rules={[{ required: true, whitespace: true, message: 'Vui lòng nhập nội dung hoặc xóa dòng này.' }]}
+                                                style={{ flex: 1, marginBottom: 0 }}
+                                            >
+                                                <Input placeholder="Nhập yêu cầu cần có (vd: Laptop cá nhân)" />
+                                            </Form.Item>
+                                            <Button type="link" danger onClick={() => remove(field.name)} style={{ marginLeft: 8 }}>
+                                                Xóa
+                                            </Button>
+                                        </div>
+                                    ))}
+                                    <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                        Thêm yêu cầu
+                                    </Button>
+                                </>
+                            )}
+                        </Form.List>
+                    </Form.Item>
+
+                    <Form.Item label="Nội dung khóa học (Các chương)">
+                        <Form.List name="content">
+                            {(fields, { add, remove }) => (
+                                <>
+                                    {fields.map((field) => (
+                                        <div key={field.key} style={{ display: 'flex', flexDirection: 'column', padding: 12, border: '1px dashed #d9d9d9', borderRadius: 8, marginBottom: 12 }}>
+                                            <Form.Item
+                                                {...field}
+                                                name={[field.name, 'title']}
+                                                label="Tiêu đề chương"
+                                                rules={[{ required: true, message: 'Vui lòng nhập tiêu đề chương!' }]}
+                                            >
+                                                <Input placeholder="Tiêu đề (vd: Chương 1: HTML/CSS căn bản)" />
+                                            </Form.Item>
+                                            <Form.Item
+                                                {...field}
+                                                name={[field.name, 'description']}
+                                                label="Chi tiết chương"
+                                                rules={[{ required: true, message: 'Vui lòng nhập chi tiết chương!' }]}
+                                                style={{ marginBottom: 8 }}
+                                            >
+                                                <Input.TextArea rows={2} placeholder="Nội dung chương (vd: Giới thiệu HTML, các thẻ cơ bản...)" />
+                                            </Form.Item>
+                                            <div style={{ textAlign: 'right' }}>
+                                                <Button type="link" danger onClick={() => remove(field.name)}>
+                                                    Xóa chương này
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                        Thêm chương học mới
+                                    </Button>
+                                </>
+                            )}
+                        </Form.List>
+                    </Form.Item>
 
                     <Form.Item style={{ textAlign: 'right', marginTop: '24px' }}>
                         <Space>

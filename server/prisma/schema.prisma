@@ -76,6 +76,8 @@ model Course {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
   instructorId     String    @map("instructor") @db.ObjectId
+  startDate        DateTime?
+  content          ContentItem[]
 
   instructor User @relation("CourseInstructor", fields: [instructorId], references: [id])
 
@@ -246,5 +248,10 @@ model Notification {
   updatedAt   DateTime @updatedAt
 
   @@map("notifications")
+}
+
+type ContentItem {
+  title       String
+  description String
 }
 

@@ -1,9 +1,8 @@
+import React from 'react';
 import Accordion from '@/features/general/components/Accordion';
-import { formatDate } from '@/utils/format'
-import React from 'react'
 
-const ContentDetailSection = ({ description, schedule, content, teams }) => {
-    const { startDate, time, days, address } = schedule || {};
+const ContentDetailSection = ({ description, schedule, content, teams, requirements, startDate }) => {
+    const { time, days, address } = schedule || {};
 
     const modifiedContent = content?.map((item, index) => {
         return {
@@ -43,7 +42,7 @@ const ContentDetailSection = ({ description, schedule, content, teams }) => {
                             <div className="info">
                                 <div className="labeltext">
                                     <span className="label --blue">Khai giảng</span>
-                                    <p className="title --t3">{formatDate(startDate) || ""}</p>
+                                    <p className="title --t3">{startDate || ""}</p>
                                 </div>
                                 <div className="labeltext">
                                     <span className="label --blue">Ngày học</span>
@@ -67,12 +66,20 @@ const ContentDetailSection = ({ description, schedule, content, teams }) => {
                     <div className="contentrow ctrequest">
                         <h3 className="contentrow__title title --t3">Yêu cầu cần có</h3>
                         <div className="ctrequest__content">
-                            <p>Có laptop cá nhân, cài đặt phần mềm Photoshop, VSCode.</p>
-                            <p>Đã tìm hiểu về lộ trình học frontend và biết cơ bản HTML, CSS là một lợi thế</p>
-                            <p>Hạn chế tối đa nghỉ học và hoàn thành bài tập được giao.</p>
-                            <p>Thành viên CFD Circle phải có tinh thần trách nhiệm, chủ động cao trong việc học, cũng
-                                như tự học và làm thêm tại
-                                nhà.</p>
+                            {requirements && requirements.length > 0 ? (
+                                requirements.map((req, index) => (
+                                    <p key={index}>{req}</p>
+                                ))
+                            ) : (
+                                <>
+                                    <p>Có laptop cá nhân, cài đặt phần mềm Photoshop, VSCode.</p>
+                                    <p>Đã tìm hiểu về lộ trình học frontend và biết cơ bản HTML, CSS là một lợi thế</p>
+                                    <p>Hạn chế tối đa nghỉ học và hoàn thành bài tập được giao.</p>
+                                    <p>Thành viên CFD Circle phải có tinh thần trách nhiệm, chủ động cao trong việc học, cũng
+                                        như tự học và làm thêm tại
+                                        nhà.</p>
+                                </>
+                            )}
                         </div>
                     </div>
                     <div className="contentrow ctteacher">
