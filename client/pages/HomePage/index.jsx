@@ -24,13 +24,25 @@ export const HomePage = () => {
   });
 
   const allCourses = dataCourses?.courses || [];
-  // Active courses go to the main list
-  const courses = allCourses.filter((course) => course.status === "active");
+  const now = new Date();
 
-  // Inactive courses go to the coming soon section
-  const comingCourses = allCourses.filter(
-    (course) => course.status === "inactive",
-  );
+  // Active courses whose start date is not in the future go to the main list
+  const courses = allCourses.filter((course) => {
+    if (course.status !== "active") return false;
+    if (course.startDate && new Date(course.startDate) > now) {
+      return false;
+    }
+    return true;
+  });
+
+  // Inactive courses or active courses with future start dates go to the coming soon section
+  const comingCourses = allCourses.filter((course) => {
+    if (course.status === "inactive") return true;
+    if (course.status === "active" && course.startDate && new Date(course.startDate) > now) {
+      return true;
+    }
+    return false;
+  });
 
   // get gallery section
   const {
