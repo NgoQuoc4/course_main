@@ -39,7 +39,7 @@ const AdminRoute = lazy(() => import("@/components/AdminRoute"));
 
 const AppRoutes = () => {
   return (
-    <Suspense fallback={<PageLoading />}>
+    <Suspense fallback={<PageLoading fixed={true} />}>
       <Routes>
         {/* Main App Routes */}
         <Route path={PATHS.HOME} element={<MainLayout />}>

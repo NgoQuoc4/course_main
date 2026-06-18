@@ -52,7 +52,7 @@ export const BlogDetailPage = () => {
             </span>
           </div>
         ) : loadingBlogDetail ? (
-          <PageLoading />
+          <PageLoading fixed={true} />
         ) : (
           <div className="wrapper">
             <BlogDetailTitle {...blogDetail} />

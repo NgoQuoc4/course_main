@@ -65,7 +65,7 @@ const CourseDetailPage = () => {
     const pageLoading = useDebounce(apiLoading, 100);
 
     if (pageLoading) {
-        return <PageLoading />;
+        return <PageLoading fixed={true} />;
     }
     return (
         <>

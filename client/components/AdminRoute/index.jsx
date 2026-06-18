@@ -22,7 +22,7 @@ const AdminRoute = ({ allowedRoles = ['admin', 'teacher'] }) => {
     }
 
     // 2. Đã đăng nhập nhưng chưa có thông tin profile (đang load)
-    if (!profile) return <PageLoading />;
+    if (!profile) return <PageLoading fixed={true} />;
 
     const userRole = (profile.role?.slug || profile.role || '').toLowerCase();
 
