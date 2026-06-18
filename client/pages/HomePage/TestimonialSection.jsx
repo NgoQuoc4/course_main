@@ -53,6 +53,10 @@ const TestimonialSection = () => {
     }, 300);
     return () => {
       clearTimeout(myTimeout);
+      let $carousel = $(".testimonial__slider .images .list");
+      if ($carousel && $carousel.data("flickity")) {
+        $carousel.flickity("destroy");
+      }
     };
   }, []);
   return (

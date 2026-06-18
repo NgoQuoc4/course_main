@@ -38,6 +38,10 @@ const TeacherSection = ({ teachers = [], loadingTeam = [false] }) => {
         }, 300)
         return () => {
             clearTimeout(myTimeout);
+            let courseComingSlider = $(".teacher .teacher__list .teacher__list-inner");
+            if (courseComingSlider && courseComingSlider.data("flickity")) {
+                courseComingSlider.flickity("destroy");
+            }
         };
     }, [teachers]);
     return (

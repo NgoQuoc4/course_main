@@ -39,6 +39,10 @@ const CourseComingSection = ({ courses, loading }) => {
         }, 300);
         return () => {
             clearTimeout(myTimeout);
+            let courseComingSlider = $("#coursecoming__slider");
+            if (courseComingSlider && courseComingSlider.data("flickity")) {
+                courseComingSlider.flickity("destroy");
+            }
         }
     }, [courses]);
     return (
