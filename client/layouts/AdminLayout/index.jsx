@@ -39,6 +39,7 @@ import "moment/locale/vi";
 import useQuery from "@/hooks/useQuery";
 import useMutation from "@/hooks/useMutation";
 import { notificationService } from "@/services/adminServices/notificationService";
+import { useAuthContext } from "@/context/AuthContext";
 
 moment.locale("vi");
 
@@ -83,6 +84,7 @@ const SIDEBAR_WIDTH = 240;
 const SIDEBAR_COLLAPSED_WIDTH = 70;
 
 const AdminLayout = () => {
+  const { profile, handleLogout } = useAuthContext();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileVisible, setMobileVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -98,6 +100,15 @@ const AdminLayout = () => {
   const collapsedVal = isMobile ? false : collapsed;
   const location = useLocation();
   const navigate = useNavigate();
+
+  const handleUserMenuClick = ({ key }) => {
+    if (key === "logout") {
+      handleLogout();
+      navigate("/");
+    } else if (key === "profile") {
+      navigate("/profile");
+    }
+  };
 
   const [notificationOpen, setNotificationOpen] = useState(false);
 
@@ -657,14 +668,15 @@ const AdminLayout = () => {
 
         {/* Sidebar footer user */}
         <div className="sidebar-footer">
-          <div className="sidebar-footer-user">
+          <div className="sidebar-footer-user" onClick={() => navigate("/profile")}>
             <Avatar
               size={34}
               style={{
                 background: "linear-gradient(135deg,#6366f1,#8b5cf6)",
                 flexShrink: 0,
               }}
-              icon={<UserOutlined />}
+              src={profile?.avatar}
+              icon={!profile?.avatar && <UserOutlined />}
             />
             {!collapsedVal && (
               <div style={{ overflow: "hidden" }}>
@@ -674,18 +686,22 @@ const AdminLayout = () => {
                     fontWeight: 600,
                     color: "#e2e8f0",
                     whiteSpace: "nowrap",
+                    textOverflow: "ellipsis",
+                    overflow: "hidden",
                   }}
                 >
-                  Administrator
+                  {profile ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || 'Admin' : 'Administrator'}
                 </div>
                 <div
                   style={{
                     fontSize: "11px",
                     color: "#475569",
                     whiteSpace: "nowrap",
+                    textOverflow: "ellipsis",
+                    overflow: "hidden",
                   }}
                 >
-                  admin@cfd.vn
+                  {profile?.email || 'admin@cfd.vn'}
                 </div>
               </div>
             )}
@@ -743,7 +759,7 @@ const AdminLayout = () => {
           </Popover>
 
           <Dropdown
-            menu={{ items: userDropdownItems }}
+            menu={{ items: userDropdownItems, onClick: handleUserMenuClick }}
             placement="bottomRight"
             trigger={["click"]}
           >
@@ -760,7 +776,8 @@ const AdminLayout = () => {
                 style={{
                   background: "linear-gradient(135deg,#6366f1,#8b5cf6)",
                 }}
-                icon={<UserOutlined />}
+                src={profile?.avatar}
+                icon={!profile?.avatar && <UserOutlined />}
               />
               {/* Name visible on larger screens */}
               <div style={{ lineHeight: 1.3 }}>
@@ -771,10 +788,10 @@ const AdminLayout = () => {
                     color: "#0f172a",
                   }}
                 >
-                  Admin
+                  {profile ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || 'Admin' : 'Admin'}
                 </div>
                 <div style={{ fontSize: "11px", color: "#94a3b8" }}>
-                  Super Admin
+                  {profile?.role?.name || 'Super Admin'}
                 </div>
               </div>
             </div>
