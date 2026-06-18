@@ -57,7 +57,7 @@ export const createOrder = async (customerId: string, payload: CreateOrderPayloa
     }
 
     // Kiểm tra trạng thái khóa học
-    const inactiveCourses = courses.filter(c => c.status !== "active");
+    const inactiveCourses = courses.filter((c: any) => c.status !== "active");
     if (inactiveCourses.length > 0) {
         throw { 
             message: `Khóa học "${inactiveCourses[0].title}" hiện không mở đăng ký.`, 
@@ -65,12 +65,12 @@ export const createOrder = async (customerId: string, payload: CreateOrderPayloa
         };
     }
 
-    const orderCourses = courses.map((course) => ({
+    const orderCourses = courses.map((course: any) => ({
         courseId: course.id,
         price: (course.salePrice && course.salePrice > 0 ? course.salePrice : course.price) || 0,
     }));
 
-    const totalAmount = orderCourses.reduce((sum, item) => sum + item.price, 0);
+    const totalAmount = orderCourses.reduce((sum: number, item: any) => sum + item.price, 0);
 
     const [order] = await prisma.$transaction([
         prisma.order.create({
@@ -120,16 +120,16 @@ export const getPaymentHistories = async (customerId: string) => {
         orderBy: { createdAt: "desc" }
     });
 
-    const courseIds = orders.flatMap(o => o.courses.map(c => c.courseId));
+    const courseIds = orders.flatMap((o: any) => o.courses.map((c: any) => c.courseId));
     const courses = await prisma.course.findMany({
         where: { id: { in: courseIds } }
     });
-    const courseMap = new Map(courses.map(c => [c.id, c]));
+    const courseMap = new Map(courses.map((c: any) => [c.id, c]));
 
-    return orders.map(o => ({
+    return orders.map((o: any) => ({
         ...o,
         _id: o.id,
-        courses: o.courses.map(oc => {
+        courses: o.courses.map((oc: any) => {
             const matched = courseMap.get(oc.courseId);
             return {
                 price: oc.price,
@@ -148,16 +148,16 @@ export const getCourseHistories = async (customerId: string) => {
         orderBy: { createdAt: "desc" }
     });
 
-    const courseIds = orders.flatMap(o => o.courses.map(c => c.courseId));
+    const courseIds = orders.flatMap((o: any) => o.courses.map((c: any) => c.courseId));
     const courses = await prisma.course.findMany({
         where: { id: { in: courseIds } }
     });
-    const courseMap = new Map(courses.map(c => [c.id, c]));
+    const courseMap = new Map(courses.map((c: any) => [c.id, c]));
 
-    return orders.map(o => ({
+    return orders.map((o: any) => ({
         ...o,
         _id: o.id,
-        courses: o.courses.map(oc => {
+        courses: o.courses.map((oc: any) => {
             const matched = courseMap.get(oc.courseId);
             return {
                 price: oc.price,

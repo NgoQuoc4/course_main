@@ -78,7 +78,7 @@ export const getBlogs = async ({ category, search, status, page = 1, limit = 9, 
         prisma.blog.count({ where })
     ]);
 
-    const mappedBlogs = blogs.map(blog => ({
+    const mappedBlogs = blogs.map((blog: any) => ({
         ...blog,
         _id: blog.id,
         category: blog.category ? { ...blog.category, _id: blog.category.id } : null,
@@ -147,7 +147,7 @@ export const getBlogCategories = async () => {
         where: { isActive: true },
         orderBy: { name: "asc" }
     });
-    return categories.map(c => ({ ...c, _id: c.id }));
+    return categories.map((c: any) => ({ ...c, _id: c.id }));
 };
 
 /**
