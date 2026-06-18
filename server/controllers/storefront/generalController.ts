@@ -9,7 +9,7 @@ import * as generalService from "../../services/storefront/generalService.js";
  */
 export const getGalleries = catchAsync(async (req: Request, res: Response) => {
     const rawGalleries = await generalService.getGalleries(req.query.category as string);
-    const images = rawGalleries.map(g => g.imageUrl);
+    const images = rawGalleries.map((g: any) => g.imageUrl);
 
     res.status(200).json({
         success: true,
@@ -30,7 +30,7 @@ export const getGalleries = catchAsync(async (req: Request, res: Response) => {
  */
 export const getTeams = catchAsync(async (req: Request, res: Response) => {
     const rawTeams = await generalService.getTeams();
-    const teams = rawTeams.map(t => ({
+    const teams = rawTeams.map((t: any) => ({
         id: t._id,
         name: t.name,
         jobTitle: t.position,

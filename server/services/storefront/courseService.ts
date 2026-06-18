@@ -75,7 +75,7 @@ export const getCourses = async (query: GetCoursesQuery) => {
         prisma.course.count({ where })
     ]);
 
-    const mappedCourses = courses.map(course => ({
+    const mappedCourses = courses.map((course: any) => ({
         ...course,
         _id: course.id,
         instructor: course.instructor ? { ...course.instructor, _id: course.instructor.id } : null,
