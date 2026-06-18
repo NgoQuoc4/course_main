@@ -44,7 +44,7 @@ const CourseDetailPage = () => {
     const orderLink = `/course-order/` + courseSlug;
 
     const { courseInfo } = useAuthContext();
-    const { teams, startDate, price, _id } = courseDetailData || {};
+    const { startDate, price, _id } = courseDetailData || {};
 
     const isRegistered = useMemo(() => {
         return !!courseInfo?.find((item) => item?._id === _id);
@@ -52,14 +52,24 @@ const CourseDetailPage = () => {
 
     const modifiedProps = useMemo(() => ({
         ...courseDetailData,
-        teacherInfo: courseDetailData?.instructor || teams?.find((item) => item.tags.includes(ROLES.teacher)) || {},
+        name: courseDetailData?.title,
+        title: courseDetailData?.tags?.[0] || "Khóa học",
+        image: courseDetailData?.thumbnail,
+        tags: courseDetailData?.tags?.join(" | "),
+        duration: courseDetailData?.duration || courseDetailData?.chapters?.reduce((acc, chap) => acc + (chap.lessons?.length || 0), 0) || 15,
+        schedule: courseDetailData?.schedule || {
+            days: "Thứ 2, Thứ 4, Thứ 6",
+            time: "18:30 - 21:30",
+            address: "Lầu 2, 666/46/29 Ba Tháng Hai, Phường 14, Quận 10, TP. HCM"
+        },
+        teacherInfo: courseDetailData?.instructor || {},
         startDate: formatDate(startDate || ""),
         price: formatCurrency(price || ""),
         status: courseDetailData?.status,
         orderLink,
         isRegistered,
     }
-    ), [courseDetailData, teams, startDate, price, orderLink, isRegistered]);
+    ), [courseDetailData, startDate, price, orderLink, isRegistered]);
 
     const apiLoading = courseDetailLoading || questionLoading || courseLoading;
     const pageLoading = useDebounce(apiLoading, 100);

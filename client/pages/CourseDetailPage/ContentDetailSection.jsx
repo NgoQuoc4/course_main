@@ -85,27 +85,41 @@ const ContentDetailSection = ({ description, schedule, content, teams, requireme
                     <div className="contentrow ctteacher">
                         <h3 className="contentrow__title title --t3">Giảng viên</h3>
                         <div className="ctteacher__content" >
-                            {teams?.map((team) => {
-                                const { id, name, description, image, jobTitle, tags } = team || {};
-                                const tag = tags[0];
-                                return (
-
-                                    <div className="itemteacher" key={id}>
-                                        <div className="itemteacher__avatar">
-                                            <img src={image || ""} alt="CFD Circle" />
-                                        </div>
-                                        <div className="itemteacher__info">
-                                            <div className="itemteacher__info-name">
-                                                <p className="title --t3">{name || ""}</p>
-                                                <span className="label badge --teacher">{tag || ""}</span>
-                                            </div>
-                                            <h5 className="itemteacher__info-pos label">{jobTitle || ""}</h5>
-                                            <p className="itemteacher__info-des">{description || ""} </p>
-                                        </div>
+                            {teacherInfo && (teacherInfo.id || teacherInfo._id || teacherInfo.firstName) ? (
+                                <div className="itemteacher" key={teacherInfo.id || teacherInfo._id}>
+                                    <div className="itemteacher__avatar">
+                                        <img src={teacherInfo.avatar || "/img/avatar.jpg"} alt="Giảng viên" />
                                     </div>
-
-                                )
-                            })}
+                                    <div className="itemteacher__info">
+                                        <div className="itemteacher__info-name">
+                                            <p className="title --t3">{`${teacherInfo.firstName} ${teacherInfo.lastName || ""}`.trim()}</p>
+                                            <span className="label badge --teacher">Giảng viên</span>
+                                        </div>
+                                        <h5 className="itemteacher__info-pos label">Senior Developer</h5>
+                                        <p className="itemteacher__info-des">{teacherInfo.introduce || "Giảng viên giàu kinh nghiệm thực chiến."}</p>
+                                    </div>
+                                </div>
+                            ) : (
+                                teams?.map((team) => {
+                                    const { id, name, description, image, jobTitle, tags } = team || {};
+                                    const tag = tags[0];
+                                    return (
+                                        <div className="itemteacher" key={id}>
+                                            <div className="itemteacher__avatar">
+                                                <img src={image || ""} alt="CFD Circle" />
+                                            </div>
+                                            <div className="itemteacher__info">
+                                                <div className="itemteacher__info-name">
+                                                    <p className="title --t3">{name || ""}</p>
+                                                    <span className="label badge --teacher">{tag || ""}</span>
+                                                </div>
+                                                <h5 className="itemteacher__info-pos label">{jobTitle || ""}</h5>
+                                                <p className="itemteacher__info-des">{description || ""} </p>
+                                            </div>
+                                        </div>
+                                    )
+                                })
+                            )}
                         </div>
                     </div>
                 </div>
