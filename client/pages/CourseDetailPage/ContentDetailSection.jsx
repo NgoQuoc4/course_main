@@ -1,7 +1,7 @@
 import React from 'react';
 import Accordion from '@/features/general/components/Accordion';
 
-const ContentDetailSection = ({ description, schedule, content, teams, requirements, startDate }) => {
+const ContentDetailSection = ({ description, schedule, content, teams, requirements, startDate, teacherInfo }) => {
     const { time, days, address } = schedule || {};
 
     const modifiedContent = content?.map((item, index) => {

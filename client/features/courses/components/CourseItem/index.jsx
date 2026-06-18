@@ -34,6 +34,10 @@ const CourseItem = ({
     const formattedAvatar = teacherAvatar.startsWith("http") || teacherAvatar.startsWith("/") ? teacherAvatar : `/${teacherAvatar}`;
 
     const detailPath = PATHS.COURSE.INDEX + `/${slug}`;
+    
+    // Map database fields to UI field expectations
+    const courseName = name || title;
+    const categoryLabel = name ? title : (tags?.[0] || "Khóa học");
 
     if (type === CourseTypes.coming)
         return (
@@ -44,8 +48,8 @@ const CourseItem = ({
                     </Link>
                 </div>
                 <div className="coursecoming__item-content">
-                    <p className="category label">{title}</p>
-                    <h2 className="title --t2"><Link to={detailPath}>{name || ""}</Link></h2>
+                    <p className="category label">{categoryLabel}</p>
+                    <h2 className="title --t2"><Link to={detailPath}>{courseName || ""}</Link></h2>
                     {!!teacherName && (
                         <div className="user">
                             <div className="user__img">
@@ -91,8 +95,8 @@ const CourseItem = ({
                 </Link>
             </div>
             <div className="content">
-                <p className="label">{title}</p>
-                <h3 className="title --t3"><Link to={detailPath}>{name}</Link></h3>
+                <p className="label">{categoryLabel}</p>
+                <h3 className="title --t3"><Link to={detailPath}>{courseName}</Link></h3>
                 <div className="content__info">
                     {!!teacherName && (
                         <div className="user">
