@@ -1,0 +1,250 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB_URI")
+}
+
+model User {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  firstName    String
+  lastName     String?
+  email        String   @unique
+  password     String
+  avatar       String?
+  phone        String?
+  introduce    String?
+  facebookUrl  String?  @map("facebookURL")
+  website      String?
+  role         Role?    @relation(fields: [roleId], references: [id])
+  roleId       String?  @map("role") @db.ObjectId
+  refreshToken String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  orders       Order[]
+  blogs        Blog[]   @relation("author")
+  courses      Course[] @relation("CourseInstructor")
+
+  @@map("customers")
+}
+
+model Team {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  position    String?
+  avatar      String?
+  description String?
+  socialLinks SocialLinks?
+  order       Int
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("teams")
+}
+
+type SocialLinks {
+  facebook String?
+  linkedin String?
+  github   String?
+  website  String?
+}
+
+model Course {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  title            String
+  slug             String    @unique
+  shortDescription String
+  description      String
+  thumbnail        String
+  price            Int
+  salePrice        Int
+  status           Status    @default(draft)
+  level            Level     @default(beginner)
+  language         String    @default("Tiếng Việt")
+  chapters         Chapter[]
+  requirements     String[]
+  outcomes         String[]
+  tags             String[]
+  enrollCount      Int       @default(0)
+  rating           Float     @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  instructorId     String    @map("instructor") @db.ObjectId
+
+  instructor User @relation("CourseInstructor", fields: [instructorId], references: [id])
+
+  @@map("courses")
+}
+
+enum Status {
+  active
+  inactive
+  draft
+}
+
+enum Level {
+  beginner
+  intermediate
+  advanced
+}
+
+type Chapter {
+  title   String
+  lessons Lesson[]
+}
+
+type Lesson {
+  title     String
+  duration  String?  @default("")
+  isPreview Boolean? @default(false)
+  content   String?  @default("")
+}
+
+model Order {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  customer      User          @relation(fields: [customerId], references: [id])
+  customerId    String        @db.ObjectId
+  courses       OrderCourse[]
+  paymentMethod String
+  totalAmount   Int
+  status        String
+  note          String
+  name          String
+  phone         String
+  email         String
+  type          String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("orders")
+}
+
+type OrderCourse {
+  courseId String @map("course") @db.ObjectId
+  price    Int
+}
+
+model Blog {
+  id         String        @id @default(auto()) @map("_id") @db.ObjectId
+  title      String
+  slug       String        @unique
+  excerpt    String
+  content    String
+  thumbnail  String
+  categoryId String?       @map("category") @db.ObjectId
+  category   BlogCategory? @relation(fields: [categoryId], references: [id])
+  authorId   String        @map("author") @db.ObjectId
+  author     User          @relation("author", fields: [authorId], references: [id])
+  tags       String[]
+  status     String
+  viewCount  Int
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@map("blogs")
+}
+
+model BlogCategory {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  slug        String   @unique
+  description String?
+  thumbnail   String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  blogs       Blog[]
+
+  @@map("blogcategories")
+}
+
+model Question {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  question  String
+  answer    String
+  isActive  Boolean  @default(true)
+  order     Int      @default(0)
+  category  String?  @default("general")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("questions")
+}
+
+model Role {
+  id            String       @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  slug          RoleType
+  description   String
+  users         User[]
+  permissionIds String[]     @db.ObjectId
+  permissions   Permission[] @relation(fields: [permissionIds], references: [id])
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("roles")
+}
+
+enum RoleType {
+  ADMIN
+  USER
+  TEACHER
+  STUDENT
+}
+
+model Permission {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  roleIds     String[] @db.ObjectId
+  roles       Role[]   @relation(fields: [roleIds], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("permissions")
+}
+
+model Subscribe {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String
+  name      String?
+  status    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("subscribes")
+}
+
+model Gallery {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String?  @default("")
+  imageUrl    String
+  description String?  @default("")
+  category    String   @default("other")
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("galleries")
+}
+
+model Notification {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  message     String
+  type        String   // 'user', 'order', 'subscribe'
+  isRead      Boolean  @default(false)
+  referenceId String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("notifications")
+}
+

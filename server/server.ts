@@ -2,7 +2,7 @@
  * Entry Point cho Backend Server
  */
 import dotenv from "dotenv";
-import connectDB from "./config/db.js";
+import prisma from "./config/prisma.js";
 import app from "./app.js";
 
 // 1. Xử lý Uncaught Exception
@@ -15,8 +15,30 @@ process.on("uncaughtException", (err: Error) => {
 // 2. Load biến môi trường
 dotenv.config();
 
-// 3. Kết nối Database
-connectDB();
+// Kiểm tra các biến môi trường thiết yếu
+const REQUIRED_ENV = [
+    "MONGODB_URI",
+    "JWT_SECRET",
+    "JWT_REFRESH_SECRET",
+    "CLOUDINARY_CLOUD_NAME",
+    "CLOUDINARY_API_KEY",
+    "CLOUDINARY_API_SECRET"
+];
+
+const missingEnv = REQUIRED_ENV.filter((env) => !process.env[env]);
+if (missingEnv.length > 0) {
+    console.error(`💥 LỖI KHỞI ĐỘNG: Thiếu cấu hình các biến môi trường thiết yếu:\n   👉 ${missingEnv.join(", ")}\n`);
+    process.exit(1);
+}
+
+// 3. Kết nối Database (Prisma)
+try {
+    await prisma.$connect();
+    console.log("✅ Cơ sở dữ liệu MongoDB đã kết nối thành công qua Prisma.");
+} catch (error: any) {
+    console.error(`❌ Lỗi kết nối MongoDB qua Prisma: ${error.message}`);
+    process.exit(1);
+}
 
 // 4. Khởi động Server
 const PORT = process.env.PORT || 5000;

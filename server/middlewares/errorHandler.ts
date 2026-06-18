@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import AppError from "../utils/AppError.js";
+import { Prisma } from "@prisma/client";
 
 /**
  * Global Error Handler Middleware
@@ -15,11 +16,19 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
         error.message = err.message;
 
         // Use original err for type/code checks as spread doesn't copy all props
-        if (err.name === "CastError") error = handleCastErrorDB(err);
-        if (err.code === 11000) error = handleDuplicateFieldsDB(err);
-        if (err.name === "ValidationError") error = handleValidationErrorDB(err);
-        if (err.name === "JsonWebTokenError") error = handleJWTError();
-        if (err.name === "TokenExpiredError") error = handleJWTExpiredError();
+        if (err instanceof Prisma.PrismaClientKnownRequestError) {
+            error = handlePrismaErrorDB(err);
+        } else if (err.name === "CastError") {
+            error = handleCastErrorDB(err);
+        } else if (err.code === 11000) {
+            error = handleDuplicateFieldsDB(err);
+        } else if (err.name === "ValidationError") {
+            error = handleValidationErrorDB(err);
+        } else if (err.name === "JsonWebTokenError") {
+            error = handleJWTError();
+        } else if (err.name === "TokenExpiredError") {
+            error = handleJWTExpiredError();
+        }
 
         sendErrorProd(error, res);
     }
@@ -72,5 +81,24 @@ const handleJWTError = () =>
 
 const handleJWTExpiredError = () =>
     new AppError("Token đã hết hạn. Vui lòng đăng nhập lại!", 401);
+
+const handlePrismaErrorDB = (err: Prisma.PrismaClientKnownRequestError) => {
+    switch (err.code) {
+        case "P2002": {
+            const targets = (err.meta?.target as string[]) || [];
+            const fields = targets.map(t => t.split("_")[0] || t);
+            const message = `Dữ liệu trùng lặp ở trường: ${fields.join(", ")}. Vui lòng sử dụng giá trị khác!`;
+            return new AppError(message, 400);
+        }
+        case "P2025": {
+            return new AppError("Không tìm thấy dữ liệu yêu cầu hoặc dữ liệu đã bị xóa.", 404);
+        }
+        case "P2003": {
+            return new AppError("Dữ liệu liên kết không hợp lệ.", 400);
+        }
+        default:
+            return new AppError(`Lỗi cơ sở dữ liệu: ${err.message}`, 400);
+    }
+};
 
 export { AppError };

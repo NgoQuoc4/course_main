@@ -129,8 +129,8 @@ const CoursePageAdmin = () => {
     ];
 
     return (
-        <div style={{ padding: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
+        <div className="admin-page-container">
+            <div className="admin-page-header">
                 <Title level={2}>Quản lý khóa học</Title>
                 <Button 
                     type="primary" 
@@ -147,11 +147,12 @@ const CoursePageAdmin = () => {
                 rowKey="_id" 
                 loading={loading}
                 pagination={{ pageSize: 10 }}
+                scroll={{ x: true }}
             />
 
             <Modal
                 title={editingCourse ? "Chỉnh sửa khóa học" : "Thêm khóa học mới"}
-                visible={isModalVisible}
+                open={isModalVisible}
                 onCancel={handleCancel}
                 footer={null}
                 width={800}

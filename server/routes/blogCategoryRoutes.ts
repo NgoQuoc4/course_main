@@ -2,7 +2,7 @@ import { Router } from "express";
 import {
     getBlogCategories,
     getBlogCategoryBySlug,
-} from "../controllers/blogController.js";
+} from "../controllers/storefront/blogController.js";
 
 const router = Router();
 

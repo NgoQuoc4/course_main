@@ -8,18 +8,33 @@ const axiosClient: AxiosInstance = axios.create({
         "Content-Type": "application/json",
     },
     timeout: 10000,
+    withCredentials: true,
 });
 
 axiosClient.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-        const tokenData = tokenMethod.get();
-        if (tokenData?.accessToken) {
-            config.headers.Authorization = `Bearer ${tokenData.accessToken}`;
+        const accessToken = tokenMethod.get();
+        if (accessToken) {
+            config.headers.Authorization = `Bearer ${accessToken}`;
         }
         return config;
     },
     (error) => Promise.reject(error)
 );
+
+let isRefreshing = false;
+let failedQueue: any[] = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+    failedQueue.forEach((prom) => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    failedQueue = [];
+};
 
 axiosClient.interceptors.response.use(
     (response) => response,
@@ -29,23 +44,46 @@ axiosClient.interceptors.response.use(
         if (
             (error.response?.status === 401 || error.response?.status === 403) &&
             originalRequest.url !== "/customer/refresh" &&
+            originalRequest.url !== "/customer/login" &&
+            originalRequest.url !== "/customer/register" &&
             !originalRequest._retry
         ) {
-            originalRequest._retry = true;
-            try {
-                const res = await axiosClient.put("/customer/refresh", {
-                    refreshToken: tokenMethod.get()?.refreshToken,
-                });
-                const { token: accessToken, refreshToken } = res.data.data || {};
-
-                tokenMethod.set({ accessToken, refreshToken });
-                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-                return axiosClient(originalRequest);
-            } catch (refreshError) {
-                tokenMethod.remove();
-                window.location.href = "/";
-                return Promise.reject(refreshError);
+            if (isRefreshing) {
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({ resolve, reject });
+                })
+                    .then((token) => {
+                        originalRequest.headers.Authorization = `Bearer ${token}`;
+                        return axiosClient(originalRequest);
+                    })
+                    .catch((err) => {
+                        return Promise.reject(err);
+                    });
             }
+
+            originalRequest._retry = true;
+            isRefreshing = true;
+
+            return new Promise((resolve, reject) => {
+                axiosClient
+                    .put("/customer/refresh")
+                    .then((res) => {
+                        const accessToken = res.data.data?.token;
+                        tokenMethod.set(accessToken);
+                        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+                        processQueue(null, accessToken);
+                        resolve(axiosClient(originalRequest));
+                    })
+                    .catch((refreshError) => {
+                        processQueue(refreshError, null);
+                        tokenMethod.remove();
+                        window.location.href = "/";
+                        reject(refreshError);
+                    })
+                    .finally(() => {
+                        isRefreshing = false;
+                    });
+            });
         }
 
         return Promise.reject(error);

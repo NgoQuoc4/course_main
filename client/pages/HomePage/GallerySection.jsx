@@ -54,7 +54,7 @@ const GallerySection = ({ galleries = [], loading = (false) }) => {
                         style={{ margin: "0 auto" }}
                     />
                 ) : (
-                    galleries.map((image, index) => <img key={new Date().getTime() + index} data-flickity-lazyload={image} alt />)
+                    galleries.map((image, index) => <img key={new Date().getTime() + index} data-flickity-lazyload={image} alt="" />)
                 )}
             </div>
             <div className="controls">

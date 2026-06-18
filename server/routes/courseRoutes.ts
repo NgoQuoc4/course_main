@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { getCourses, getCourseBySlug, createCourse, updateCourse, deleteCourse } from "../controllers/courseController.js";
+import { getCourses, getCourseBySlug } from "../controllers/storefront/courseController.js";
+import { createCourse, updateCourse, deleteCourse } from "../controllers/admin/courseController.js";
 import { protect, restrictTo } from "../middlewares/authMiddleware.js";
 
 const router = Router();

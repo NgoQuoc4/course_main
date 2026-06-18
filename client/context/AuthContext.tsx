@@ -3,8 +3,10 @@ import { authService } from "@/features/auth/services/authService";
 import { orderService } from "@/features/order/services/orderService";
 import tokenMethod from "@/utils/token";
 import { message } from "antd";
-import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import React, { createContext, useContext, useEffect, useState, ReactNode, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import useQuery from "@/hooks/useQuery";
 import { IUser } from "../../types/user";
 import { ICourse } from "../../types/course";
 import { IOrder } from "../../types/order";
@@ -16,9 +18,9 @@ interface AuthContextValue {
     paymentInfo: IOrder[];
     handleShowModal: (modalType: string) => void;
     handleCloseModal: (e?: React.MouseEvent | any) => void;
-    handleLogin: (loginData: any) => Promise<void>;
+    handleLogin: (loginData: any, callback?: () => void) => Promise<void>;
     handleRegister: (registerData: any, callback: () => void) => Promise<void>;
-    handleLogout: () => void;
+    handleLogout: () => void | Promise<void>;
     handleGetProfileCourse: () => Promise<void>;
     handleGetProfilePayment: () => Promise<void>;
     handleUpdateProfile: (profileData: any) => Promise<void>;
@@ -32,10 +34,57 @@ interface AuthContextProviderProps {
 
 const AuthContextProvider: React.FC<AuthContextProviderProps> = ({ children }) => {
     const [showedModal, setShowedModal] = useState<string>("");
-    const [profile, setProfile] = useState<IUser | undefined>();
-    const [courseInfo, setCourseInfo] = useState<(ICourse & { orderId: string; orderStatus: string })[]>([]);
-    const [paymentInfo, setPaymentInfo] = useState<IOrder[]>([]);
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
+
+    const hasToken = !!tokenMethod.get();
+
+    // Query Profile
+    const { data: profileData, error: profileError, refetch: refetchProfile } = useQuery({
+        queryKey: ["profile"],
+        queryFn: () => authService.getProfiles(),
+        enabled: hasToken,
+    });
+
+    const profile = profileData;
+
+    // Query Course Info
+    const { data: courseInfoRaw, refetch: refetchCourseInfo } = useQuery({
+        queryKey: ["profile-courses"],
+        queryFn: () => orderService.getCourseHistories(),
+        enabled: hasToken,
+    });
+
+    // Query Payment Info
+    const { data: paymentInfoRaw, refetch: refetchPaymentInfo } = useQuery({
+        queryKey: ["profile-payments"],
+        queryFn: () => orderService.getPaymentHistories(),
+        enabled: hasToken,
+    });
+
+    // Logout if token invalid or error fetching profile
+    useEffect(() => {
+        if (profileError) {
+            console.log("profileError", profileError);
+            handleLogout();
+        }
+    }, [profileError]);
+
+    const courseInfo = useMemo(() => {
+        const orders = courseInfoRaw?.orders || [];
+        return orders.reduce((acc: any[], order: any) => {
+            const orderCourses = order.courses.map((item: any) => ({
+                ...item.course,
+                orderId: order._id,
+                orderStatus: order.status
+            }));
+            return [...acc, ...orderCourses];
+        }, []);
+    }, [courseInfoRaw]);
+
+    const paymentInfo = useMemo(() => {
+        return paymentInfoRaw?.orders || [];
+    }, [paymentInfoRaw]);
 
     const handleShowModal = (modalType: string) => {
         if (!tokenMethod.get()) {
@@ -48,30 +97,26 @@ const AuthContextProvider: React.FC<AuthContextProviderProps> = ({ children }) =
         setShowedModal("");
     }
 
-    useEffect(() => {
-        if (tokenMethod.get()) {
-            handleGetProfile();
-            handleGetProfileCourse();
-            handleGetProfilePayment();
-        }
-    }, []);
-
-    const handleLogin = async (loginData: any) => {
+    const handleLogin = async (loginData: any, callback?: () => void) => {
         try {
             const res = await authService.login(loginData);
-            const { token: accessToken, refreshToken } = res?.data?.data || {};
-            tokenMethod.set({ accessToken, refreshToken });
+            const accessToken = res?.data?.data?.token;
+            tokenMethod.set(accessToken);
 
             if (tokenMethod.get()) {
-                handleGetProfile();
-                handleGetProfileCourse();
-                handleGetProfilePayment();
+                refetchProfile();
+                refetchCourseInfo();
+                refetchPaymentInfo();
                 message.success("Đăng nhập thành công!");
                 handleCloseModal();
             }
         } catch (error) {
             console.log("error", error);
-            message.error("Đăng nhập thất bại");
+            message.error(
+                (error as any)?.response?.data?.message || "Đăng nhập thất bại"
+            );
+        } finally {
+            callback?.();
         }
     };
 
@@ -91,62 +136,32 @@ const AuthContextProvider: React.FC<AuthContextProviderProps> = ({ children }) =
             }
         } catch (error) {
             console.log("error", error);
-            if ((error as any)?.response?.status === 403) {
-                message.error("Email đăng ký đã tồn tại!");
-            } else {
-                message.error("Đăng ký thất bại!");
-            }
+            message.error(
+                (error as any)?.response?.data?.message || "Đăng ký thất bại!"
+            );
         } finally {
             callback();
         }
     };
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        try {
+            await authService.logout();
+        } catch (error) {
+            console.error("Logout API error", error);
+        }
         tokenMethod.remove();
-        setProfile(undefined);
+        queryClient.clear();
         navigate(PATHS.HOME);
         message.success("Tài khoản đã đăng xuất thành công");
     };
 
-    const handleGetProfile = async () => {
-        try {
-            const profileRes = await authService.getProfiles();
-            if (profileRes?.data?.data) {
-                setProfile(profileRes.data.data)
-            }
-        } catch (error) {
-            console.log("error", error);
-            handleLogout();
-        }
-    };
-
     const handleGetProfileCourse = async () => {
-        try {
-            const res = await orderService.getCourseHistories();
-            const orders = res?.data?.data?.orders || [];
-            const allCourses = orders.reduce((acc: any[], order: any) => {
-                const orderCourses = order.courses.map((item: any) => ({
-                    ...item.course,
-                    orderId: order._id,
-                    orderStatus: order.status
-                }));
-                return [...acc, ...orderCourses];
-            }, []);
-            
-            setCourseInfo(allCourses);
-        } catch (error) {
-            console.log("getCoursesHistories error", error);
-        }
+        await refetchCourseInfo();
     };
 
     const handleGetProfilePayment = async () => {
-        try {
-            const res = await orderService.getPaymentHistories();
-            const payments = res?.data?.data?.orders || [];
-            setPaymentInfo(payments);
-        } catch (error) {
-            console.log("getPaymentHistories error", error);
-        }
+        await refetchPaymentInfo();
     };
 
     const handleUpdateProfile = async (profileData: any) => {
@@ -165,10 +180,13 @@ const AuthContextProvider: React.FC<AuthContextProviderProps> = ({ children }) =
             const res = await authService.updateProfile(payload);
             if (res?.data?.data?.id) {
                 message.success("Cập nhật thông tin thành công");
-                handleGetProfile();
+                refetchProfile();
             }
         } catch (error) {
             console.log("error", error);
+            message.error(
+                (error as any)?.response?.data?.message || "Cập nhật thông tin thất bại!"
+            );
         }
     };
 

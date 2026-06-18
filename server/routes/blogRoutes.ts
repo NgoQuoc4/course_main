@@ -2,10 +2,12 @@ import { Router } from "express";
 import {
     getBlogs,
     getBlogBySlug,
+} from "../controllers/storefront/blogController.js";
+import {
     createBlog,
     updateBlog,
     deleteBlog,
-} from "../controllers/blogController.js";
+} from "../controllers/admin/blogController.js";
 import { protect, restrictTo } from "../middlewares/authMiddleware.js";
 
 const router = Router();

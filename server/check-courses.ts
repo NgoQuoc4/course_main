@@ -1,13 +1,16 @@
-import mongoose from "mongoose";
+import prisma from "./config/prisma.js";
 import dotenv from "dotenv";
-import Course from "./models/Course.js";
 
 dotenv.config();
 
 const checkCourses = async () => {
     try {
-        await mongoose.connect(process.env.MONGODB_URI!);
-        const courses = await Course.find({}, "title slug");
+        const courses = await prisma.course.findMany({
+            select: {
+                title: true,
+                slug: true
+            }
+        });
         console.log("Current Courses:", JSON.stringify(courses, null, 2));
         process.exit(0);
     } catch (error) {

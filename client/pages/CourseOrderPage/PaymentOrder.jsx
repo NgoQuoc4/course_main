@@ -42,7 +42,7 @@ const PaymentOrder = ({ handleChange, selectedPayment, disabled }) => {
                         return (
                             <div className="boxorder__pay" key={id} onClick={() => handleChange(id)}>
                                 <label className="radiocontainer">
-                                    <img src={icon} alt />{label}
+                                    <img src={icon} alt="" />{label}
                                     <input
                                         checked={selectedPayment === id}
                                         type="radio"

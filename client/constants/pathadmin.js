@@ -20,6 +20,7 @@ const PATHS_ADMIN = {
         MY_PAYMENT: ADMIN_PATH + PROFILE_PATH + "/my-payment"
     },
     USERS: ADMIN_PATH + "/users",
+    ROLES: ADMIN_PATH + "/roles",
 }
 
 export default PATHS_ADMIN

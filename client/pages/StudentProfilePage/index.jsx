@@ -1,12 +1,9 @@
 import { NavLink, Outlet } from "react-router-dom"
-import MyCourse from "./MyCourse"
-import MyInfo from "./MyInfo"
-import MyPayment from "./MyPayment"
 import { useAuthContext } from "@/context/AuthContext"
 import PATHS from "@/constants/paths";
 
 const StudentProfilePage = () => {
-    const { profile, handleGetProfileCourse, handleGetProfilePayment } = useAuthContext();
+    const { profile } = useAuthContext();
     const { firstName, introduce, email, phone, website, avatar } = profile || {};
 
     return (
@@ -36,9 +33,9 @@ const StudentProfilePage = () => {
                                 </li>
                             </ul>
                             <div className="social">
-                                <a href="#" target="_blank"><img src="/img/icon-facebook-dark.svg" alt /></a>
-                                <a href="#" target="_blank"><img src="/img/icon-linkedin-dark.svg" alt /></a>
-                                <a href="#" target="_blank"><img src="/img/icon-youtube-dark.svg" alt /></a>
+                                <a href="#" target="_blank"><img src="/img/icon-facebook-dark.svg" alt="" /></a>
+                                <a href="#" target="_blank"><img src="/img/icon-linkedin-dark.svg" alt="" /></a>
+                                <a href="#" target="_blank"><img src="/img/icon-youtube-dark.svg" alt="" /></a>
                             </div>
                         </div>
                     </div>

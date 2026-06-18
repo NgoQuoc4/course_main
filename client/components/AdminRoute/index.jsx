@@ -24,15 +24,16 @@ const AdminRoute = ({ allowedRoles = ['admin', 'teacher'] }) => {
     // 2. Đã đăng nhập nhưng chưa có thông tin profile (đang load)
     if (!profile) return <PageLoading />;
 
-    const userRole = profile.role?.slug || profile.role; // Hỗ trợ cả string và object
+    const userRole = (profile.role?.slug || profile.role || '').toLowerCase();
 
-    // 3. Nếu là 'customer' -> Chuyển về trang chủ theo yêu cầu của user
-    if (userRole === 'customer') {
+    // 3. Nếu là 'customer' hoặc 'user' -> Chuyển về trang chủ theo yêu cầu của user
+    if (userRole === 'customer' || userRole === 'user') {
         return <Navigate to={PATHS.HOME} />;
     }
 
     // 4. Nếu là role không được phép -> Hiện trang No Permission
-    if (!allowedRoles.includes(userRole)) {
+    const lowerAllowedRoles = allowedRoles.map(role => role.toLowerCase());
+    if (!lowerAllowedRoles.includes(userRole)) {
         return <NoPermissionPage />;
     }
 

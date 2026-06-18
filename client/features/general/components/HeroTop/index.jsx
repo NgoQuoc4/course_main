@@ -47,7 +47,7 @@ const HeroTop = ({ id, image, thumbnail, name, teacherInfo = {}, price, orderLin
             <div className="container-fluid">
                 <div className="headtop__left">
                     <div className="headtop__left-avatar">
-                        <img src={displayImage} alt />
+                        <img src={displayImage} alt="" />
                     </div>
                     <div className="headtop__left-title">
                         <h2><strong>{name}</strong></h2>

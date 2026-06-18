@@ -3,7 +3,7 @@ import {
     createOrder,
     getMyPaymentHistories,
     getMyCourseHistories,
-} from "../controllers/orderController.js";
+} from "../controllers/storefront/orderController.js";
 import { protect } from "../middlewares/authMiddleware.js";
 import { validateOrder } from "../middlewares/validateMiddleware.js";
 

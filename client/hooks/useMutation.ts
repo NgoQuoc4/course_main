@@ -1,48 +1,48 @@
-import { useState } from "react";
+import { useMutation as useReactMutation } from "@tanstack/react-query";
 
 interface UseMutationOptions<T> {
-    onSuccess?: (data: T) => void;
-    onFail?: (error: any) => void;
+  onSuccess?: (data: T) => void;
+  onFail?: (error: any) => void;
 }
 
 interface UseMutationResult<T> {
-    execute: (payload?: any, options?: UseMutationOptions<T>) => Promise<void>;
-    data: T | undefined;
-    setData: React.Dispatch<React.SetStateAction<T | undefined>>;
-    loading: boolean;
-    error: any;
+  execute: (payload?: any, options?: UseMutationOptions<T>) => Promise<void>;
+  data: T | undefined;
+  setData: React.Dispatch<React.SetStateAction<T | undefined>>;
+  loading: boolean;
+  error: any;
 }
 
-const useMutation = <T,>(
-    promise: (payload?: any) => Promise<any>
+const useMutation = <T = any>(
+  promise: (payload?: any) => Promise<any>,
 ): UseMutationResult<T> => {
-    const [data, setData] = useState<T>();
-    const [loading, setLoading] = useState<boolean>(false);
-    const [error, setError] = useState<any>();
+  const mutation = useReactMutation({
+    mutationFn: async (payload?: any) => {
+      const res = await promise(payload);
+      return res?.data?.data;
+    },
+  });
 
-    const execute = async (payload?: any, options?: UseMutationOptions<T>) => {
-        const { onSuccess, onFail } = options || {};
-        setLoading(true);
-        try {
-            const res = await promise(payload);
-            const responseData = res.data?.data;
-            setData(responseData);
-            onSuccess?.(responseData);
-        } catch (err) {
-            setError(err);
-            onFail?.(err);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const execute = async (payload?: any, options?: UseMutationOptions<T>) => {
+    const { onSuccess, onFail } = options || {};
+    try {
+      const responseData = await mutation.mutateAsync(payload);
+      onSuccess?.(responseData);
+    } catch (err) {
+      onFail?.(err);
+    }
+  };
 
-    return {
-        execute,
-        data,
-        setData,
-        loading,
-        error,
-    };
+  // Dummy stub to prevent typescript compilation errors for pages destructuring setData
+  const setData = () => {};
+
+  return {
+    execute,
+    data: mutation.data as T | undefined,
+    setData: setData as any,
+    loading: mutation.isPending,
+    error: mutation.error,
+  };
 };
 
 export default useMutation;

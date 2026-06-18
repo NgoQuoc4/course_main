@@ -4,7 +4,7 @@ import {
     getTeams,
     getQuestions,
     createSubscribe,
-} from "../controllers/generalController.js";
+} from "../controllers/storefront/generalController.js";
 import { validateSubscribe } from "../middlewares/validateMiddleware.js";
 
 const router = Router();

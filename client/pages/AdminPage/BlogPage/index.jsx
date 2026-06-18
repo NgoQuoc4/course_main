@@ -135,8 +135,8 @@ const BlogPageAdmin = () => {
     ];
 
     return (
-        <div style={{ padding: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
+        <div className="admin-page-container">
+            <div className="admin-page-header">
                 <Title level={2}>Quản lý bài viết</Title>
                 <Button 
                     type="primary" 
@@ -153,11 +153,12 @@ const BlogPageAdmin = () => {
                 rowKey="_id" 
                 loading={loading}
                 pagination={{ pageSize: 10 }}
+                scroll={{ x: true }}
             />
 
             <Modal
                 title={editingBlog ? "Chỉnh sửa bài viết" : "Thêm bài viết mới"}
-                visible={isModalVisible}
+                open={isModalVisible}
                 onCancel={handleCancel}
                 footer={null}
                 width={800}

@@ -1,44 +1,45 @@
-import { useEffect, useState, DependencyList } from 'react';
+import { useQuery as useReactQuery } from "@tanstack/react-query";
+import { DependencyList } from "react";
 
-interface UseQueryResult<T> {
-    data: T | undefined;
-    loading: boolean;
-    error: any;
-    refetch: (query?: any) => Promise<void>;
-}
+const useQuery = <T = any,>(
+  arg1: any,
+  arg2: DependencyList = []
+): any => {
+  // 1. Signature mới: useQuery({ queryKey, queryFn, ...options })
+  if (typeof arg1 === "object" && arg1 !== null && "queryKey" in arg1) {
+    const { queryKey, queryFn, ...rest } = arg1;
+    return useReactQuery({
+      queryKey,
+      queryFn: async () => {
+        const res = await queryFn();
+        return res?.data?.data;
+      },
+      ...rest,
+    });
+  }
 
-const useQuery = <T,>(
-    promise: (query?: any) => Promise<any>,
-    dependencies: DependencyList = []
-): UseQueryResult<T> => {
-    const [data, setData] = useState<T>();
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<any>();
+  // 2. Signature cũ (Backward Compatibility): useQuery(promiseFn, dependencies)
+  const promise = arg1 as (query?: any) => Promise<any>;
+  const dependencies = arg2;
+  const queryKey = ["customQuery", promise.toString(), ...dependencies];
 
-    useEffect(() => {
-        fetchData();
-    }, dependencies);
+  const queryResult = useReactQuery({
+    queryKey,
+    queryFn: async () => {
+      const res = await promise();
+      return res?.data?.data;
+    },
+  });
 
-    const fetchData = async (query?: any) => {
-        setLoading(true);
-        try {
-            const res = await promise(query);
-            if (res?.data) {
-                setData(res.data?.data);
-            }
-        } catch (err) {
-            setError(err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return {
-        data,
-        loading,
-        error,
-        refetch: fetchData,
-    };
+  return {
+    data: queryResult.data as T | undefined,
+    loading: queryResult.isLoading,
+    error: queryResult.error,
+    refetch: async () => {
+      const res = await queryResult.refetch();
+      return res.data;
+    },
+  };
 };
 
 export default useQuery;

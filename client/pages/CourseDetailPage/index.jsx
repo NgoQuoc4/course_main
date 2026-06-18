@@ -1,5 +1,4 @@
-import useMutation from "@/hooks/useMutation";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import HeroSection from "./HeroSection";
 import FaqSection from "../HomePage/FaqSection";
 import ContentDetailSection from "./ContentDetailSection";
@@ -21,7 +20,6 @@ const CourseDetailPage = () => {
     // get course data
     const {
         data: courseData,
-        error: courseError,
         loading: courseLoading,
     } = useQuery(courseServices.getCourses);
     const courses = courseData?.courses || [];
@@ -29,7 +27,6 @@ const CourseDetailPage = () => {
     //  get questions data
     const {
         data: questionData,
-        error: questionError,
         loading: questionLoading
     } = useQuery(questionService.getQuestion);
     const questions = questionData?.questions || [];
@@ -37,14 +34,12 @@ const CourseDetailPage = () => {
     // get courses data by slug
     const {
         data: courseDetailData,
-        error: courseDetailError,
-        loading: courseDetailLoading,
-        execute,
-    } = useMutation(courseServices.getCourseBySlug);
-
-    useEffect(() => {
-        if (courseSlug) execute(courseSlug || "");
-    }, [courseSlug])
+        isLoading: courseDetailLoading,
+    } = useQuery({
+        queryKey: ["course-detail", courseSlug],
+        queryFn: () => courseServices.getCourseBySlug(courseSlug),
+        enabled: !!courseSlug,
+    });
 
     const orderLink = `/course-order/` + courseSlug;
 
